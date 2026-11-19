@@ -33,6 +33,42 @@ struct BlockList freeBlockLists[BUDDY_UPPER_LEVEL + 1] ;
 void buddy_init();
 __inline__ uint32 get_block_size(void *va);
 void *alloc_block(uint32 size);
+{cprintf("STAFF alloc_block called\n");
+    if (requiredSize == 0)
+        return NULL;
+
+    uint32 total_size = requiredSize + META_DATA_SIZE;
+
+    int level = BUDDY_LOWER_LEVEL;
+    while (level <= BUDDY_UPPER_LEVEL && BLOCK_SIZE(level) < total_size)
+        level++;
+    if (level > BUDDY_UPPER_LEVEL)
+        return NULL;
+
+    int cur = level;
+    while (cur <= BUDDY_UPPER_LEVEL && LIST_EMPTY(&freeBlockLists[cur]))
+        cur++;
+    if (cur > BUDDY_UPPER_LEVEL)
+        return NULL;
+
+    struct BlockMetaData *blk = LIST_FIRST(&freeBlockLists[cur]);
+    LIST_REMOVE(&freeBlockLists[cur], blk);
+
+
+    while (cur > level)
+    {
+        cur--;
+        struct BlockMetaData *buddy =
+            (struct BlockMetaData *)((uint32)blk + BLOCK_SIZE(cur));
+        buddy->level = cur;
+        buddy->is_free = 1;
+        LIST_INSERT_HEAD(&freeBlockLists[cur], buddy);
+    }
+
+    blk->level = level;
+    blk->is_free = 0;
+    return (void *)((uint32)blk + META_DATA_SIZE);
+}
 void free_block(void* va);
 void *realloc_block(void* va, uint32 new_size);
 //In KernelHeap: should be implemented inside kern/mem/kheap.c
