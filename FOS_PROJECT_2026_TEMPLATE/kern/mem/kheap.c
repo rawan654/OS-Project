@@ -9,6 +9,9 @@
 #include "../conc/ksemaphore.h"
 #include <kern/cpu/cpu.h>
 
+#ifndef PERM_BSP
+#define PERM_BSP 0x200 
+#endif
 /************************************************************************************/
 //==================================================================================//
 //============================== GIVEN FUNCTIONS ===================================//
@@ -37,6 +40,7 @@ void kheap_init()
 #define PAGE_FREE      0
 #define PAGE_BUDDY     1
 #define PAGE_ALLOCATED 2
+#define PERM_BSP 0x200
 
 static uint8  page_type[NUM_OF_HEAP_PAGES];
 static unsigned alloc_size[NUM_OF_HEAP_PAGES];
@@ -201,7 +205,32 @@ void* create_buddy_space()
 	//TODO: [PROJECT'26.GM#2] KERNEL HEAP - [4] create_buddy_space
 	//Your code is here
 	//Comment the following line
-	panic("create_buddy_space() not implemented");
+//	panic("create_buddy_space() not implemented");
+
+	void *virtualAdd1 = kmalloc(PAGE_SIZE);
+
+		if(virtualAdd1==NULL)
+			return NULL;
+		int o=1;
+		for(int i=0;i<9;i++)
+		{
+			o++;
+		}
+		unsigned int *ptr_page_table1=NULL;
+		int retu2=get_page_table(ptr_page_directory,(unsigned int)virtualAdd1,&ptr_page_table1);
+		if(retu2!=TABLE_IN_MEMORY || ptr_page_table1==NULL)
+		{
+			kfree(virtualAdd1);
+			return NULL;
+		}
+
+			unsigned int VADD2 = (unsigned int)virtualAdd1;
+			int IndexOftable=PTX(VADD2);
+			unsigned int EntOFpagetable=ptr_page_table1[IndexOftable];
+			EntOFpagetable = EntOFpagetable | PERM_BSP;
+			ptr_page_table1[IndexOftable]=EntOFpagetable;
+
+		return virtualAdd1;
 }
 
 void  delete_buddy_space(void *va)
@@ -209,7 +238,32 @@ void  delete_buddy_space(void *va)
 	//TODO: [PROJECT'26.GM#2] KERNEL HEAP - [5] delete_buddy_space
 	//Your code is here
 	//Comment the following line
-	panic("delete_buddy_space() not implemented");
+	//panic("delete_buddy_space() not implemented");
+
+	if(va == NULL)
+	{
+		return;
+	}
+	unsigned int virtuADD1=(unsigned int)va;
+	unsigned int *ptr_page_table11=NULL;
+	int ret22=get_page_table(ptr_page_directory,virtuADD1,&ptr_page_table11);
+	if(ret22==TABLE_IN_MEMORY)
+	{
+		if(ptr_page_table11!=NULL)
+		{
+			int IDXoftable=PTX(virtuADD1);
+			unsigned int EntPageTable=ptr_page_table11[IDXoftable];
+			EntPageTable=EntPageTable&(~PERM_BSP);
+			ptr_page_table11[IDXoftable]=EntPageTable;
+		}
+	}
+	int o=1;
+	for(int i=0;i<9;i++)
+	{
+		o++;
+	}
+	kfree(va);
+
 }
 
 /**************************************************/
@@ -234,6 +288,8 @@ void kfree(void* virtual_address)
 {
 	   unsigned va = (uint32)virtual_address;
 	   unsigned index;
+	   unsigned int *page_table_of_va = NULL;
+	   int is_buddy_page = 0;
 
 		if (virtual_address == NULL)
 			return;
@@ -243,7 +299,10 @@ void kfree(void* virtual_address)
 
 		index = (va - KERNEL_HEAP_START) / PAGE_SIZE;
 
-		if (page_type[index] == PAGE_BUDDY)
+		if (get_page_table(ptr_page_directory, va, &page_table_of_va) == TABLE_IN_MEMORY && page_table_of_va != NULL)
+			is_buddy_page = (page_table_of_va[PTX(va)] & PERM_BSP) != 0;
+
+		if (is_buddy_page)
 		{
 			free_block(virtual_address);
 		}
@@ -262,7 +321,40 @@ unsigned int kheap_physical_address(unsigned int virtual_address)
 	//TODO: [PROJECT'26.GM#2] KERNEL HEAP - [8] kheap_physical_address
 	//Your code is here
 	//Comment the following line
-	panic("kheap_physical_address() is not implemented yet...!!");
+//	panic("kheap_physical_address() is not implemented yet...!!");
+
+	//steps:
+		//Get the table of pages
+		//check in memory or not
+		//get the entry of the page
+		//check if it exist or not
+		//get the offset & merge it with or
+		unsigned int myVirtuAdd = virtual_address;
+		unsigned int start_address=0;
+		unsigned int *ptr_page_table111;
+
+		unsigned int retu = get_page_table(ptr_page_directory, myVirtuAdd, &ptr_page_table111);
+
+		if(ptr_page_table111==NULL)
+			return 0;
+		if(retu!=TABLE_IN_MEMORY)
+			return 0;
+
+		int o=1;
+		for(int i=0;i<9;i++)
+		{
+			o++;
+		}
+		unsigned int EntryOfPage = ptr_page_table111[PTX(myVirtuAdd)];
+		if((EntryOfPage & PERM_PRESENT) == 0)
+		{
+			return 0;
+
+		}
+		// offset = virtual address % page size
+		unsigned int offSet = myVirtuAdd % PAGE_SIZE;
+		//merging
+		return offSet | (EntryOfPage & 0xFFFFF000);
 
 	/*EFFICIENT IMPLEMENTATION ~O(1) IS REQUIRED */
 }
