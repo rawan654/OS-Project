@@ -10,10 +10,10 @@
 /*2017*/
 //Values for user heap placement strategy
 #define KHP_PLACE_CONTALLOC 0x0
-#define KHP_PLACE_FIRSTFIT 	0x1
-#define KHP_PLACE_BESTFIT 	0x2
-#define KHP_PLACE_NEXTFIT 	0x3
-#define KHP_PLACE_WORSTFIT 	0x4
+#define KHP_PLACE_FIRSTFIT  0x1
+#define KHP_PLACE_BESTFIT           0x2
+#define KHP_PLACE_NEXTFIT           0x3
+#define KHP_PLACE_WORSTFIT  0x4
 #define KHP_PLACE_CUSTOMFIT 0x5
 
 /******************************************************************************/
@@ -33,11 +33,11 @@ void kheap_init();
 void* kmalloc(unsigned int size);
 void kfree(void* virtual_address);
 void *krealloc(void *virtual_address, unsigned int new_size);
+void* create_buddy_space();
+void delete_buddy_space(void *va);
 
 unsigned int kheap_virtual_address(unsigned int physical_address);
 unsigned int kheap_physical_address(unsigned int virtual_address);
 
 int numOfKheapVACalls ;
-
-
 #endif // FOS_KERN_KHEAP_H_
