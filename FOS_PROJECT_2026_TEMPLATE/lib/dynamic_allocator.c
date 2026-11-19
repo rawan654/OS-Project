@@ -59,30 +59,43 @@ __inline__ uint32 get_block_size(void *va)
 //TODO: [PROJECT'26.GM#1] DYNAMIC ALLOCATOR - [2] alloc_block
 void *alloc_block(uint32 requiredSize)
 {
-	if(requiredSize == 0)
+	//Your code is here
+	//Comment the following line
+	//panic("alloc_block() not implemented");
+	if (requiredSize == 0)
 		return NULL;
-    uint32 total_size = requiredSize + sizeof(struct BlockMetaData);
-    struct BlockMetaData *search = NULL ;
-    LIST_FOREACH(search,&freeBlockLists,BlockMetaData)
-    {
-        uint32 block_size = get_block_size((void *)search);
-        if(block_size >= total_size)
-        {
-        	if(block_size > total_size+ sizeof(struct BlockMetaData))
-        	{
-        		struct BlockMetaData *newblock =(struct BlockMetaData)((char*)search + total_size);
-        		newblock->is_free=1;
-        		newblock-> level = block_size-total_size;
-        		LIST_INSERT_AFTER(&freeBlockLists,search,newblock);
-        	}
-        	search->level = total_size;
-        	search->is_free = 0;
-        	LIST_REMOVE(&freeBlockLists,search);
-        	return (void*)(char*)search+sizeof(struct BlockMetaData);
-        }
-        return NULL;
-    }
-	panic("alloc_block() not implemented");
+
+	uint32 total_size = requiredSize + META_DATA_SIZE;
+
+	int level = BUDDY_LOWER_LEVEL;
+	while (level <= BUDDY_UPPER_LEVEL && BLOCK_SIZE(level) < total_size)
+		level++;
+	if (level > BUDDY_UPPER_LEVEL)
+		return NULL;
+
+	int cur = level;
+	while (cur <= BUDDY_UPPER_LEVEL && LIST_EMPTY(&freeBlockLists[cur]))
+		cur++;
+	if (cur > BUDDY_UPPER_LEVEL)
+		return NULL;
+
+	struct BlockMetaData *blk = LIST_FIRST(&freeBlockLists[cur]);
+	LIST_REMOVE(&freeBlockLists[cur], blk);
+
+
+	while (cur > level)
+	{
+		cur--;
+		struct BlockMetaData *buddy =
+			(struct BlockMetaData *)((uint32)blk + BLOCK_SIZE(cur));
+		buddy->level = cur;
+		buddy->is_free = 1;
+		LIST_INSERT_HEAD(&freeBlockLists[cur], buddy);
+	}
+
+	blk->level = level;
+	blk->is_free = 0;
+	return (void *)((uint32)blk + META_DATA_SIZE);
 }
 
 
