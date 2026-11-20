@@ -119,14 +119,12 @@ struct sleeplock __tstslplk__;
 int __numOfSlaves = 0;
 #define __maxNumOfKSems (100)
 struct ksemaphore __ksems[NENV][__maxNumOfKSems];
-/*******************************************************/
-/*2026: ALL UTILITIES ARE TREATED AS A CRITICAL SECTION*/
-/*	i.e. Interrupts are disabled and clock is paused   */
-/*******************************************************/
+extern char __isKernPanic__ ;
+
 void sys_utilities(char* utilityName, int value)
 {
 	//Disable interrupts and pause clock
-	pushcli(); cpuclk_pause();
+	//pushcli(); cpuclk_pause();
 
 	if (strncmp(utilityName, "__BSDSetNice@", strlen("__BSDSetNice@")) == 0)
 	{
@@ -345,6 +343,9 @@ void sys_utilities(char* utilityName, int value)
 	{
 		if (value == 0)
 		{
+			//kclock_stop();
+			cpuclk_pause();
+			//cli();
 			struct Env * p = get_cpu_proc();
 			if (p == NULL)
 			{
@@ -355,6 +356,9 @@ void sys_utilities(char* utilityName, int value)
 		}
 		else if (value == 1)
 		{
+			//kclock_stop();
+			cpuclk_pause();
+			//cli();
 			struct Env * p = get_cpu_proc();
 			if (p == NULL)
 			{
@@ -597,7 +601,11 @@ void sys_utilities(char* utilityName, int value)
 			*check = 1;
 		else
 			*check = 0;
-
+	}
+	else if (strcmp(utilityName, "__IsKernPanic__") == 0)
+	{
+		uint32* isKernPanic = (uint32*) value ;
+		*isKernPanic = __isKernPanic__ ;
 	}
 
 	if ((int)value < 0)
@@ -641,7 +649,7 @@ void sys_utilities(char* utilityName, int value)
 	}
 
 	//Enable interrupts and resume clock
-	popcli(); cpuclk_resume();
+	//popcli(); cpuclk_resume();
 
 	/*****************************************************************************************/
 

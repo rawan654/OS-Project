@@ -2,9 +2,13 @@
 // Master program: create and run slaves, wait them to finish
 #include <inc/lib.h>
 #define __AUTOGRADE__ 1
+extern volatile bool printStats;
+
 void
 _main(void)
 {
+	printStats = 0;
+
 	cprintf_colored(TEXT_yellow,"==============================================\n");
 	cprintf_colored(TEXT_yellow,"MAKE SURE to have a FRESH RUN for this test\n(i.e. don't run any program/test before it)\n");
 	cprintf_colored(TEXT_yellow,"==============================================\n");

@@ -1,11 +1,11 @@
-/********************************************************** */
-/* MAKE SURE PAGE_WS_MAX_SIZE = 15 - SECOND CHANCE LIST = 2*/
-/************************************************************/
 
 #include <inc/lib.h>
+extern volatile bool printStats;
 
 void _main(void)
 {
+	printStats = 0;
+
 	int eval = 0;
 
 	cprintf_colored(TEXT_cyan, "%~PART I: Test the Pointer Validation inside fault_handler(): [70%]\n");
@@ -19,9 +19,12 @@ void _main(void)
 
 	int ID3 = sys_create_env("tia_slave3", (myEnv->page_WS_max_size), (myEnv->page_2nd_WS_size),(myEnv->percentage_of_WS_pages_to_be_removed));
 	sys_run_env(ID3);
-	env_sleep(15000);
+	env_sleep(10000);
 
-	if (gettst() != 0)
+	char isKernPanicCmd[100] = "__IsKernPanic__" ;
+	int isKernPanic = 0;
+	sys_utilities(isKernPanicCmd, (uint32)(&isKernPanic));
+	if (gettst() != 0 || isKernPanic)
 		cprintf_colored(TEXT_TESTERR_CLR, "\n%~PART I... Failed.\n");
 	else
 	{
@@ -36,9 +39,9 @@ void _main(void)
 	int ID4 = sys_create_env("tia_slave4", (myEnv->page_WS_max_size), (myEnv->page_2nd_WS_size),(myEnv->percentage_of_WS_pages_to_be_removed));
 	sys_run_env(ID4);
 
-	env_sleep(15000);
+	env_sleep(10000);
 
-	if (gettst() != 0)
+	if (gettst() != 1)
 		cprintf_colored(TEXT_TESTERR_CLR, "\n%~PART II... Failed.\n");
 	else
 	{

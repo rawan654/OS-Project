@@ -388,7 +388,7 @@ void print_welcome_message()
  * to indicate that the kernel has already called panic.
  */
 static const char *panicstr;
-
+char __isKernPanic__ ;
 /*
  * Panic is called on unresolvable fatal errors.
  * It prints "panic: mesg", exit the curenv and schedule the next environment.
@@ -402,6 +402,7 @@ void _panic(const char *file, int line, const char *fmt,...)
 	//if (panicstr)
 	//	goto dead;
 	panicstr = fmt;
+	__isKernPanic__ = 1;
 
 	va_start(ap, fmt);
 	cprintf_colored(TEXT_PANIC_CLR, "\nkernel [EVAL_FINAL]panic at %s:%d: ", file, line);

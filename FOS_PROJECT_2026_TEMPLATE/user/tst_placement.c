@@ -1,19 +1,21 @@
-/* *********************************************************** */
-/* MAKE SURE PAGE_WS_MAX_SIZE = 20 */
-/* *********************************************************** */
 
 #include <inc/lib.h>
+uint8 __tmpArr__[PAGE_SIZE * 24] = {0};
 uint32 expectedInitialVAs[15] = {
-		0x800000, 0x801000, 0x802000,		//Code
+		0x800000, 0x801000, 0x802000,														//Code
 		0x803000,0x804000,0x805000,0x806000,0x807000,0x808000,0x809000,0x80a000,0x80b000, 	//Data
-		0xeebfd000, 0xedbfd000 /*will be created during the call of sys_check_WS_list*/,	//Stack
-		0x81b000 /*for the text color variable*/} ;
+		0xeebfd000,																			//Stack
+		0x81b000 /*for the text color variable*/,											//Data
+		0xedbfd000 /*will be created during the call of sys_check_WS_list*/					//Stack
+		} ;
 
+extern volatile bool printStats;
 
 void _main(void)
 {
 #if USE_KHEAP
 	//	cprintf_colored(TEXT_cyan,"envID = %d\n",envID);
+	printStats = 0;
 
 	char arr[PAGE_SIZE*1024*4];
 	bool found ;
@@ -110,8 +112,8 @@ void _main(void)
 				expectedPages[10] = 0x80a000 ;
 				expectedPages[11] = 0x80b000 ;
 				expectedPages[12] = 0xeebfd000 ;
-				expectedPages[13] = 0xedbfd000 ;
-				expectedPages[14] = 0x81b000 ;
+				expectedPages[13] = 0x81b000;
+				expectedPages[14] = 0xedbfd000 ;
 				expectedPages[15] = 0xedffd000 ;
 				expectedPages[16] = 0xedffe000 ;
 				expectedPages[17] = 0xee3fd000 ;
@@ -160,8 +162,8 @@ void _main(void)
 				expectedPages[10] = 0x80a000 ;
 				expectedPages[11] = 0x80b000 ;
 				expectedPages[12] = 0xeebfd000 ;
-				expectedPages[13] = 0xedbfd000 ;
-				expectedPages[14] = 0x81b000 ;
+				expectedPages[13] = 0x81b000;
+				expectedPages[14] = 0xedbfd000 ;
 				expectedPages[15] = 0xedffd000 ;
 				expectedPages[16] = 0xedffe000 ;
 				expectedPages[17] = 0xee3fd000 ;

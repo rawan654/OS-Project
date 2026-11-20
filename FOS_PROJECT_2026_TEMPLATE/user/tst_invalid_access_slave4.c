@@ -9,15 +9,28 @@ void _main(void)
 	//[4] Not in Page File, Not Stack & Not Heap
 	uint32 kilo = 1024;
 	{
-		uint32 size = 4*kilo;
+		//uint32 size = 4*kilo;
 
-		unsigned char *x = (unsigned char *)(0x00200000-PAGE_SIZE);
+		//Successful access to allowed space
+		unsigned char *x = (unsigned char *)(0x00200000);
 
 		int i=0;
-		for(;i< size+20;i++)
+		for(;i< 20;i++)
 		{
 			x[i]=-1;
 		}
+
+		inctst();
+
+		//Access to NOT allowed space
+		x = (unsigned char *)(0x00200000 - 20);
+
+		i=0;
+		for(;i< 20;i++)
+		{
+			x[i]=-1;
+		}
+
 	}
 
 	inctst();
