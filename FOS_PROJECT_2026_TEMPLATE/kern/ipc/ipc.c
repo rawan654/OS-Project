@@ -62,14 +62,14 @@ int ipc_delete_env_mailbox(struct Env *e)
 	//Comment the following line
 	panic("ipc_delete_env_mailbox() is not implemented yet...!!");
 }
-int ipc_get_mailbox(uint32 mailboxHandle, struct Mailbox *mb)
+int ipc_get_mailbox(uint32 mailboxHandle, struct Mailbox **mb, uint8 connectType)
 {
 	//TODO: [PROJECT'26.IM#5] IPC#2 - [5] ipc_get_mailbox
 	//Your code is here
 	//Comment the following line
 	panic("ipc_get_mailbox() is not implemented yet...!!");
 
-	/* Get mailbox object using the info from the given handle
+	/* Get a pointer to the mailbox object using the info from the given handle
 	 * "mb" is a return param (passed by reference)
 	 */
 }

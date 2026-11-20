@@ -15,6 +15,7 @@
 
 uint32 cpu_init_cnt[NCPUS];
 uint32 cpu_last_cnt[NCPUS];
+bool is_stopped ;
 
 static void
 lapicw(int index, int value)
@@ -46,7 +47,8 @@ lapic_init(void)
 	if (quantums)
 	{
 		cpuclk_set_counter(quantums[0]);
-		cpuclk_start();
+		//	cpuclk_start();
+//	cpuclk_pause();
 	}
 	else
 	{
@@ -126,10 +128,12 @@ void cpuclk_start()
 	//lapicw(TICR, 10000000);
 	lapicw(TIMER, PERIODIC | (IRQ_OFFSET + IRQ_TIMER));
 	lapicw(TICR, cpu_init_cnt[cpunum()]);
+	is_stopped = 0;
 }
 
 void cpuclk_pause()
 {
+	if (is_stopped) return;
 	//Save current counter value
 	cpu_last_cnt[cpunum()] = lapicr(TCCR);
 	if (cpu_last_cnt[cpunum()] == 0)
@@ -141,6 +145,7 @@ void cpuclk_pause()
 
 void cpuclk_resume()
 {
+	if (is_stopped) return;
 	lapicw(TIMER, PERIODIC | (IRQ_OFFSET + IRQ_TIMER));
 	lapicw(TICR, cpu_last_cnt[cpunum()]);
 }
@@ -149,10 +154,12 @@ void cpuclk_stop()
 {
 	lapicw(TIMER, MASKED);
 	lapicw(TICR, 0);
+	is_stopped = 1;
 }
 
 void cpuclk_restart()
 {
+	if (is_stopped) return;
 	lapicw(TIMER, PERIODIC | (IRQ_OFFSET + IRQ_TIMER));
 	lapicw(TICR, cpu_init_cnt[cpunum()]);
 }

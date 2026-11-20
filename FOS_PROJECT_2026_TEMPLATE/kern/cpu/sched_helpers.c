@@ -141,6 +141,7 @@ void sched_insert_ready(struct Env* env)
 		//cprintf("\nInserting %d into ready queue 0\n", env->env_id);
 		env->env_status = ENV_READY ;
 		enqueue(&(ProcessQueues.env_ready_queues[env->priority]), env);
+		env->isExpandedBefore = env->priority;
 	}
 }
 

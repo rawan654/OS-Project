@@ -65,6 +65,7 @@ fos_scheduler(void)
 	struct CpuInfo *c = mycpu();
 	c->proc = 0;
 	c->scheduler_status = SCH_STARTED;
+	cpuclk_start();
 
 	//This variable should be set to the next environment to be run (if any)
 	struct Env* next_env = NULL;

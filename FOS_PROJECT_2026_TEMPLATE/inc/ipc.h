@@ -39,6 +39,8 @@
 #define E_MB_ENV_CONNECTED	-6
 #define E_MB_INV_REQUEST	-7
 #define E_MB_OPER_FAILED	-8
+#define E_MB_INV_MSG		-9
+
 /*Message Data Structure*/
 struct Message
 {
@@ -57,7 +59,7 @@ LIST_HEAD(MessagesList, Message);
 /******************************************************************************/
 
 /*User IPC Functions*/
-int ipc_connect(uint32 ownerID, char *mailboxName, uint8 type);
+int ipc_connect(uint32 ownerID, char *mailboxName, uint8 connectType);
 int ipc_disconnect(uint32 mailboxHandle);
 int ipc_create_mailbox(char *mailboxName);
 int ipc_delete_mailbox(uint32 mailboxHandle);
@@ -67,7 +69,7 @@ int ipc_receive(uint32 srcMailboxHandle, struct Message *msg);
 int ipc_broadcast(uint32 destMailboxHandle, struct Message *msg);
 
 /*User IPC System Calls*/
-int sys_ipc_connect(uint32 ownerID, char *mailboxName, uint8 type);
+int sys_ipc_connect(uint32 ownerID, char *mailboxName, uint8 connectType);
 int sys_ipc_disconnect(uint32 mailboxHandle);
 int sys_ipc_create_mailbox(char *mailboxName);
 int sys_ipc_delete_mailbox(uint32 mailboxHandle);

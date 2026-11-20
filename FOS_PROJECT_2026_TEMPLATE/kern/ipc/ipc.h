@@ -42,10 +42,10 @@ void free_mailbox_handle(struct Env* e, struct MailboxHandle* mailboxHandle);
 /*Kernel IPC Functions*/
 int ipc_create_env_mailbox(struct Env *e, uint32 size);
 int ipc_delete_env_mailbox(struct Env *e);
-int ipc_get_mailbox(uint32 mailboxHandle, struct Mailbox *mb);
+int ipc_get_mailbox(uint32 mailboxHandle, struct Mailbox **mb, uint8 connectType);
 
 /*Kernel IPC System Calls*/
-int sys_ipc_connect(uint32 ownerID, char *mailboxName, uint8 type);
+int sys_ipc_connect(uint32 ownerID, char *mailboxName, uint8 connectType);
 int sys_ipc_disconnect(uint32 mailboxHandle);
 int sys_ipc_create_mailbox(char *mailboxName);
 int sys_ipc_delete_mailbox(uint32 mailboxHandle);
